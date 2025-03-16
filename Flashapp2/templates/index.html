@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fish Weight Prediction</title>
+</head>
+<body>
+    <h1>Fish Weight Prediction</h1>
+    <form id="predict-form">
+        <label for="length1">Length 1 (cm):</label>
+        <input type="number" step="0.01" id="length1" required><br><br>
+        <label for="length2">Length 2 (cm):</label>
+        <input type="number" step="0.01" id="length2" required><br><br>
+        <label for="length3">Length 3 (cm):</label>
+        <input type="number" step="0.01" id="length3" required><br><br>
+        <label for="height">Height (cm):</label>
+        <input type="number" step="0.01" id="height" required><br><br>
+        <label for="width">Width (cm):</label>
+        <input type="number" step="0.01" id="width" required><br><br>
+        <button type="submit">Predict</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        const form = document.getElementById('predict-form');
+        const resultDiv = document.getElementById('result');
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            resultDiv.innerText = "Predicting..."; // Give some feedback
+
+            const length1 = parseFloat(document.getElementById('length1').value);
+            const length2 = parseFloat(document.getElementById('length2').value);
+            const length3 = parseFloat(document.getElementById('length3').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const width = parseFloat(document.getElementById('width').value);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Length1: length1,
+                        Length2: length2,
+                        Length3: length3,
+                        Height: height,
+                        Width: width
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Prediction failed");
+                }
+
+                const result = await response.json();
+                resultDiv.innerText = `Predicted Weight: ${result.prediction}`;
+
+            } catch (error) {
+                resultDiv.innerText = `Error: ${error.message}`;
+            }
+        };
+    </script>
+</body>
+</html>
